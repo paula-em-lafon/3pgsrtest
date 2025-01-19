@@ -121,24 +121,6 @@ def fetch_all_books() -> list:
         for row in data
     ]
 
-def select_t_book_by_id(id: int) -> dict:
-    with PgDatabase() as db:
-        db.cursor.execute(f"""
-        SELECT id, title, year, status, author FROM t_books
-        WHERE id={id};
-                        """)
-        data = db.cursor.fetchone()
-        if data is None:
-            return {"error": "Book not found"}
-
-    return {
-        "id": data[0],
-        "title": data[1],
-        "year": data[2],
-        "status": data[3],
-        "author": data[4]
-    }
-
 def add_author(payload: AuthorSchema, *args, **kwargs) -> dict:
     try:
         with PgDatabase() as db:
@@ -283,13 +265,3 @@ def edit_book(id: int, payload: BookSchema) -> dict:
 #         print(f"Failed to edit book: {updated_book['error']}")
 #     else:
 #         print(f"Book updated successfully: {updated_book}")
-
-# Test Get Book
-
-# if __name__ == "__main__":
-    
-#     retrieved_book = select_t_book_by_id(3)
-#     if "error" in retrieved_book:
-#         print(f"Failed to edit book: {retrieved_book['error']}")
-#     else:
-#         print(f"Book fetched successfully: {retrieved_book}")

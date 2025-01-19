@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from enum import Enum
 from typing import List, Optional
 
@@ -20,6 +20,14 @@ class NewBookSchema(BaseModel):
     status: StatusEnum = Field(StatusEnum.DRAFT, description="The status of the book")
     author_id: Optional[int] = Field(None)
     author_name: Optional[str] = Field(None)
+
+    @validator("author_name")
+    def validate_author_name(cls, value):
+        if value == "" or value is None:
+            return value
+        if not (3 <= len(value) <= 140):
+            raise ValueError("Author name must be between 3 and 140 characters.")
+        return value
 
 # Base schema with common fields
 class BookSchema(BaseModel):
