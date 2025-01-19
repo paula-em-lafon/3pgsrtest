@@ -19,7 +19,7 @@ class NewBookSchema(BaseModel):
     year: int = Field(..., ge=0)
     status: StatusEnum = Field(StatusEnum.DRAFT, description="The status of the book")
     author_id: Optional[int] = Field(None)
-    author_name: Optional[str] = Field(None, min_length=3,max_length=140)
+    author_name: Optional[str] = Field(None)
 
 # Base schema with common fields
 class BookSchema(BaseModel):

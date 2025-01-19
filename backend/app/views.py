@@ -64,6 +64,8 @@ async def new_book(payload: NewBookSchema):
 async def change_book(payload: NewBookSchema, id: int = Path(..., gt=0)):
     try:
         newPayload = None;
+        print("----------------PAYLOAD--------------")
+        print(payload)
         if payload.author_name and not payload.author_id:
             newAuthor = {"author": payload.author_name}
             checkedNewAuthor = AuthorSchema(**newAuthor)

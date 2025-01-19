@@ -1,60 +1,53 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Author, NewBook } from '../../../types'
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+import BookForm from '../../../components/BookForm';
+import { Book, Author } from '../../../types';
 
-interface BookFormProps {
-  isEdit: boolean;
-  authors: Author[];
-  book?: NewBook;
-}
+const EditPage: React.FC = () => {
+  const params = useParams(); // Use Next.js hook to retrieve params
+  const id = params?.id; // Extract id safely
 
-const BookForm: React.FC<BookFormProps> = ({ isEdit, authors, book }) => {
-  const router = useRouter();
-  const [formData, setFormData] = useState<NewBook>({
-    title: book?.title || '',
-    year: book?.year || 0,
-    status: book?.status || 'DRAFT',
-    author_id: book?.author_id || undefined,
-    author_name: '',
-  });
+  const [book, setBook] = useState<Book | null>(null);
+  const [authors, setAuthors] = useState<Author[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  useEffect(() => {
+    if (!id) return;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const endpoint = isEdit
-        ? `http://localhost:8000/api/editbook/${book?.title}/`
-        : 'http://localhost:8000/api/newbook';
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      if (!res.ok) throw new Error('Failed to submit book');
-      router.push('/');
-    } catch (err) {
-      console.error(err);
-    }
-  };
+    const fetchBookAndAuthors = async () => {
+      try {
+        const res = await fetch('http://localhost:8000/api/');
+        if (!res.ok) throw new Error('Failed to fetch data');
+
+        const data = await res.json();
+        const foundBook = data.books.find((b: Book) => b.id.toString() === id);
+
+        if (!foundBook) throw new Error('Book not found');
+        setBook(foundBook);
+        setAuthors(data.authors);
+      } catch (err) {
+        setError((err as Error).message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBookAndAuthors();
+  }, [id]);
+
+  if (loading) return <p className="text-gray-500 text-center">Loading...</p>;
+  if (error) return <p className="text-red-500 text-center">Error: {error}</p>;
+  if (!book) return <p className="text-red-500 text-center">Book not found</p>;
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-4">
-      <input name="title" value={formData.title} onChange={handleChange} className="border rounded w-full p-2" placeholder="Title" required />
-      <input name="year" type="number" value={formData.year} onChange={handleChange} className="border rounded w-full p-2" placeholder="Year" required />
-      <select name="status" value={formData.status} onChange={handleChange} className="border rounded w-full p-2">
-        <option value="DRAFT">DRAFT</option>
-        <option value="PUBLISHED">PUBLISHED</option>
-      </select>
-      <button type="submit" className="bg-blue-500 text-white p-2 rounded w-full">
-        {isEdit ? 'Update Book' : 'Add Book'}
-      </button>
-    </form>
+    <div className="p-6">
+      <h1 className="text-3xl font-bold mb-6 text-center">Edit Book</h1>
+      <BookForm isEdit={true} book={book} authors={authors} />
+    </div>
   );
 };
 
-export default BookForm;
+export default EditPage;
