@@ -48,6 +48,12 @@ const HomePage: React.FC = () => {
             >
               New Book
             </button>
+            <button
+              onClick={() => router.push(`/error/`)}
+              className="mt-2 bg-red-500 text-white px-4 py-2 rounded"
+            >
+              Error Demo
+            </button>
           </div>
       </div>
 

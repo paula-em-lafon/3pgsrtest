@@ -19,7 +19,7 @@ const EditPage: React.FC = () => {
 
     const fetchBookAndAuthors = async () => {
       try {
-        const res = await fetch('http://localhost:8000/api/');
+        const res = await fetch('http://localhost:8000/apis/');
         if (!res.ok) throw new Error('Failed to fetch data');
 
         const data = await res.json();
